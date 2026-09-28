@@ -1,6 +1,14 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Drawer } from 'vaul';
+import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from './Icon';
+import { useIsWide } from '../lib/hooks';
 
+/**
+ * A bottom sheet on mobile / a centered dialog on wide screens, backed by Vaul's
+ * real drag-to-dismiss physics. `onClose` fires only once the closing animation
+ * has actually finished, so callers can safely unmount right away.
+ */
 export function Sheet({
   title,
   onClose,
@@ -14,22 +22,39 @@ export function Sheet({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const [open, setOpen] = useState(true);
+  const wide = useIsWide();
+
   return (
-    <>
-      <div className="pk-scrim" onClick={onClose} />
-      <div className="pk-sheet" role="dialog" aria-modal="true" aria-label={title}>
-        <div className="pk-grab"><span /></div>
-        <div className="pk-sheethead">
-          <div>{headerLeft}</div>
-          {title ? <span className="pk-sheettitle">{title}</span> : <span />}
-          <button type="button" className="pk-circle pk-plain pk-press" aria-label="Close" onClick={onClose}>
-            <Icon id="close" className="pk-ico-s" />
-          </button>
-        </div>
-        <div className="pk-sheetbody pk-scroll">{children}</div>
-        {footer}
-      </div>
-    </>
+    <Drawer.Root
+      open={open}
+      onOpenChange={(v) => setOpen(v)}
+      onAnimationEnd={(v) => { if (!v) onClose(); }}
+      shouldScaleBackground={false}
+    >
+      <Drawer.Portal>
+        <Drawer.Overlay className="pk-scrim" />
+        <Drawer.Content
+          className="pk-sheet"
+          style={wide ? { left: '50%', right: 'auto', bottom: 'auto', top: '50%', width: 440, borderRadius: 26, transform: 'translate(-50%, -50%)' } : undefined}
+          aria-describedby={undefined}
+        >
+          <Drawer.Title className="pk-sr">{title ?? 'Dialog'}</Drawer.Title>
+          <div className="pk-grab"><span /></div>
+          <div className="pk-sheethead">
+            <div>{headerLeft}</div>
+            {title ? <span className="pk-sheettitle">{title}</span> : <span />}
+            <Drawer.Close asChild>
+              <button type="button" className="pk-circle pk-plain pk-press" aria-label="Close">
+                <Icon id="close" className="pk-ico-s" />
+              </button>
+            </Drawer.Close>
+          </div>
+          <div className="pk-sheetbody pk-scroll">{children}</div>
+          {footer}
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 
@@ -48,19 +73,39 @@ export function AlertDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const [open, setOpen] = useState(true);
   return (
-    <>
-      <div className="pk-scrim" onClick={onCancel} />
-      <div className="pk-alert" role="alertdialog" aria-modal="true">
-        <h2>{title}</h2>
-        <p>{message}</p>
-        <button type="button" className={'pk-btn pk-press ' + (danger ? 'pk-btn-danger' : 'pk-btn-primary')} style={{ width: '100%' }} onClick={onConfirm}>
-          {confirmLabel}
-        </button>
-        <button type="button" className="pk-btn pk-press" style={{ width: '100%', background: 'none' }} onClick={onCancel} autoFocus>
-          Cancel
-        </button>
-      </div>
-    </>
+    <AnimatePresence onExitComplete={onCancel}>
+      {open && (
+        <>
+          <motion.div
+            className="pk-scrim"
+            onClick={() => setOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          />
+          <motion.div
+            className="pk-alert"
+            role="alertdialog"
+            aria-modal="true"
+            initial={{ opacity: 0, scale: 0.94, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 6 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 34 }}
+          >
+            <h2>{title}</h2>
+            <p>{message}</p>
+            <button type="button" className={'pk-btn pk-press ' + (danger ? 'pk-btn-danger' : 'pk-btn-primary')} style={{ width: '100%' }} onClick={onConfirm}>
+              {confirmLabel}
+            </button>
+            <button type="button" className="pk-btn pk-press" style={{ width: '100%', background: 'none' }} onClick={() => setOpen(false)} autoFocus>
+              Cancel
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

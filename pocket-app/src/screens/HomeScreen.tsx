@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { useStore } from '../lib/store';
 import { derive, activeGoals, goalInfo } from '../lib/calc';
 import { eur2 } from '../lib/format';
@@ -6,6 +7,7 @@ import { rowOf } from '../lib/rows';
 import { Icon } from '../components/Icon';
 import { GoalArc } from '../components/GoalArc';
 import { ActivityRow } from '../components/ActivityRow';
+import { AnimatedNumber } from '../components/AnimatedNumber';
 import { useIsDark } from '../lib/hooks';
 import type { Goal } from '../lib/types';
 
@@ -74,9 +76,9 @@ export function HomeScreen({ onOpenGoal, onNewGoal, onSeeAllActivity, onEditEntr
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
                 <div className="pk-stats">
-                  <div><span className="pk-t3">Total savings</span><span className="pk-amt" style={{ fontSize: 17 }}>{eur2(dv.total)}</span></div>
+                  <div><span className="pk-t3">Total savings</span><AnimatedNumber value={dv.total} format={eur2} className="pk-amt" style={{ fontSize: 17 }} /></div>
                   <i />
-                  <div><span className="pk-t3">Available</span><span className="pk-amt" style={{ fontSize: 17, color: availableColor }}>{eur2(dv.available)}</span></div>
+                  <div><span className="pk-t3">Available</span><AnimatedNumber value={dv.available} format={eur2} className="pk-amt" style={{ fontSize: 17, color: availableColor }} /></div>
                 </div>
                 <section aria-label="Recent activity">
                   <div className="pk-secthead">
@@ -85,7 +87,16 @@ export function HomeScreen({ onOpenGoal, onNewGoal, onSeeAllActivity, onEditEntr
                   </div>
                   {recent.length > 0 ? (
                     <div className="pk-list">
-                      {recent.map((r) => <ActivityRow key={r.id} row={r} onClick={() => onEditEntry(r.id)} />)}
+                      {recent.map((r, i) => (
+                        <motion.div
+                          key={r.id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.22, delay: i * 0.035, ease: [0.23, 1, 0.32, 1] }}
+                        >
+                          <ActivityRow row={r} onClick={() => onEditEntry(r.id)} />
+                        </motion.div>
+                      ))}
                     </div>
                   ) : (
                     <div className="pk-empty" style={{ padding: '22px 16px 8px' }}>
