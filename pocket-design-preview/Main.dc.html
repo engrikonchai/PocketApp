@@ -17,7 +17,8 @@ button, input { font-family: inherit; font-size: inherit; color: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 
 /* ---------- Review board (outside the device) ---------- */
-.pk-board { position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; background: #E9E9E6; color: #1B1C1A; transition: background 300ms ease; overflow: hidden; }
+html, body { height: 100%; }
+.pk-board { position: fixed; inset: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; background: #E9E9E6; color: #1B1C1A; transition: background 300ms ease; overflow: hidden; }
 .pk-board.pk-board-dark { background: #232422; color: #ECEDEA; }
 .pk-ctrl { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 16px; padding: 20px 24px 8px; box-sizing: border-box; }
 .pk-ctrl-title { display: flex; flex-direction: column; gap: 2px; margin-right: 6px; max-width: 250px; }
@@ -303,27 +304,7 @@ button { -webkit-tap-highlight-color: transparent; }
 </style>
 </helmet>
 
-<div class="{{boardClass}}" style="width: 1480px; height: 1200px;">
-
-  <!-- Prototype controls: review-only, outside the device -->
-  <sc-if value="{{showCtl}}" hint-placeholder-val="{{true}}">
-    <div class="pk-ctrl" role="group" aria-label="Prototype controls">
-      <div class="pk-ctrl-title"><b>Pocket · interactive prototype</b><span>Controls here are for review only, not part of the app.</span></div>
-      <div class="pk-ctrl-group"><span class="pk-ctrl-label">Device</span>
-        <div class="pk-ctrl-seg"><sc-for list="{{ctlDevice}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
-      </div>
-      <div class="pk-ctrl-group"><span class="pk-ctrl-label">Theme</span>
-        <div class="pk-ctrl-seg"><sc-for list="{{ctlTheme}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
-      </div>
-      <div class="pk-ctrl-group"><span class="pk-ctrl-label">Data</span>
-        <div class="pk-ctrl-seg"><sc-for list="{{ctlData}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
-      </div>
-      <div class="pk-ctrl-group"><span class="pk-ctrl-label">Motion</span>
-        <div class="pk-ctrl-seg"><sc-for list="{{ctlMotion}}" as="c" hint-placeholder-count="2"><button type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
-      </div>
-      <button type="button" class="pk-ctrl-reset" onClick="{{resetAll}}">Reset data</button>
-    </div>
-  </sc-if>
+<div class="{{boardClass}}">
 
   <div class="pk-stage">
     <div class="pk-scaler" style="{{scalerStyle}}">
@@ -1422,6 +1403,10 @@ class Component extends DCLogic {
       this._mqHandler();
       if (this._mqDark.addEventListener) { this._mqDark.addEventListener('change', this._mqHandler); this._mqRM.addEventListener('change', this._mqHandler); }
     } catch (e) { /* matchMedia unavailable */ }
+    try {
+      this._onResize = () => this.forceUpdate();
+      window.addEventListener('resize', this._onResize);
+    } catch (e) { /* window unavailable */ }
     this.later(() => this.scrollPillIntoView(false), 60);
   }
 
@@ -1447,6 +1432,7 @@ class Component extends DCLogic {
     window.removeEventListener('pointerup', this._onTrackUp);
     window.removeEventListener('pointermove', this._onSheetMove);
     window.removeEventListener('pointerup', this._onSheetUp);
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
     this._timers.forEach((t) => clearTimeout(t));
     try { if (this._mqDark && this._mqDark.removeEventListener) { this._mqDark.removeEventListener('change', this._mqHandler); this._mqRM.removeEventListener('change', this._mqHandler); } } catch (e) { /* noop */ }
   }
@@ -1886,8 +1872,8 @@ class Component extends DCLogic {
     /* ----- stage / device ----- */
     const dev = s.device;
     const frameSize = { phone: [428, 882], narrow: [344, 668], tablet: [868, 1228], desktop: [1280, 800] }[dev];
-    const showCtl = !this.props.hideControls; const boardW = 1480, boardH = 1200; const ctrlH = showCtl ? 92 : 0;
-    const availW = boardW - 80, availH = boardH - ctrlH - 40;
+    const boardW = (typeof window !== 'undefined' ? window.innerWidth : 428), boardH = (typeof window !== 'undefined' ? window.innerHeight : 882);
+    const availW = boardW - 24, availH = boardH - 24;
     const scale = Math.min(1, availW / frameSize[0], availH / frameSize[1]);
     this._scale = scale;
 
@@ -2111,20 +2097,12 @@ class Component extends DCLogic {
     const o = s.onb; const ov = this.formValidation({ name: o.name, targetStr: o.targetStr });
     const onbIcons = GOAL_ICONS.slice(0, 6).map((ic) => ({ label: ic.label, iconD: P(ic.id), on: o.icon === ic.id, pick: () => this.patchOnb({ icon: ic.id }) }));
 
-    /* ----- prototype controls ----- */
-    const ctl = (list, cur, fn) => list.map((x) => ({ label: x[1], on: cur === x[0], pick: () => fn(x[0]) }));
-
     return {
-      uid: uid, showCtl: showCtl,
+      uid: uid,
       boardClass: 'pk-board' + (dark ? ' pk-board-dark' : ''),
       appClass: 'pk-app pk-dev-' + dev + (dark ? ' pk-dark' : '') + (rm ? ' pk-rm' : '') + (wide ? ' pk-wide' : ''),
       frameClass: 'pk-frame pk-frame-' + dev, scalerStyle: 'transform: scale(' + scale.toFixed(3) + ');',
       isPhoneLike: dev === 'phone' || dev === 'narrow', isPhone: dev === 'phone', isNarrow: dev === 'narrow', isTablet: dev === 'tablet', isDesktop: dev === 'desktop',
-      ctlDevice: ctl([['narrow', 'Narrow'], ['phone', 'iPhone'], ['tablet', 'Tablet'], ['desktop', 'Desktop']], dev, (v) => this.setState({ device: v })),
-      ctlTheme: ctl([['system', 'System'], ['light', 'Light'], ['dark', 'Dark']], s.themePref, (v) => this.setTheme(v)),
-      ctlData: ctl([['sample', 'Sample'], ['empty', 'Empty'], ['new', 'New user']], s.scenario, (v) => this.setScenario(v)),
-      ctlMotion: ctl([['full', 'Full'], ['reduced', 'Reduced']], s.rmPref ? 'reduced' : 'full', (v) => this.setState({ rmPref: v === 'reduced' })),
-      resetAll: () => this.setScenario(s.scenario),
 
       /* icons used in static markup */
       icPlus: P('plus'), icClose: P('close'), icBack: P('back'), icNext: P('next'), icDown: P('down'), icGear: P('gear'), icFilter: P('filter'), icCal: P('calendar'),
