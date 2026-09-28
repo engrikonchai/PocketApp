@@ -1937,7 +1937,7 @@ class Component extends DCLogic {
         } else {
           title = e.note || (e.type === 'save' ? 'Saved to ' + gname : 'Withdrawn from ' + gname);
           sub = e.note ? (e.type === 'save' ? 'To ' : 'From ') + gname : (e.type === 'save' ? (e.source === 'outside' ? 'From outside Pocket' : 'From Available') : (e.source === 'outside' ? 'Used outside Pocket' : 'To Available'));
-          amt = this.eur2(e.amount); amtColor = 'var(--ink2)';
+          amt = (e.type === 'save' ? '+' : '−') + this.eur2(e.amount); amtColor = 'var(--ink2)';
         }
       } else {
         iconD = P(cat.icon); title = e.note || cat.label; sub = e.note ? cat.label : (e.type === 'income' ? 'Income' : 'Expense');
