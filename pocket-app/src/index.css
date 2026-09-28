@@ -97,8 +97,9 @@ button { -webkit-tap-highlight-color: transparent; cursor: pointer; -webkit-user
 .pk-wide .pk-col.pk-col-wide { max-width: 980px; }
 .pk-wide .pk-bottombar { padding-bottom: 20px; justify-content: center; }
 .pk-wide .pk-bottombar > * { max-width: 260px; }
-.pk-wide .pk-sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: 440px; border-radius: 26px; box-shadow: 0 30px 80px rgba(0,0,0,0.22); transform: translate(-50%, -50%); }
-.pk-wide .pk-grab { visibility: hidden; height: 6px; padding: 0; }
+/* .pk-sheet and its .pk-grab handle are portaled to document.body by Vaul, outside
+   .pk-app's DOM subtree, so .pk-wide-scoped rules can never reach them — their wide
+   ("centered dialog") positioning is applied inline in Sheet.tsx instead. */
 .pk-wide .pk-alert { left: 50%; right: auto; bottom: auto; top: 50%; width: 360px; transform: translate(-50%, -50%); }
 
 /* Buttons */

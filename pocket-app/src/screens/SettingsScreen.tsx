@@ -3,6 +3,7 @@ import { useStore } from '../lib/store';
 import { eur2 } from '../lib/format';
 import { Icon } from '../components/Icon';
 import { AlertDialog } from '../components/Sheet';
+import { Segmented } from '../components/Segmented';
 
 export function SettingsScreen({ onBack, onArchived, onEditBalance }: { onBack: () => void; onArchived: () => void; onEditBalance: () => void }) {
   const { state, setTheme, eraseAll } = useStore();
@@ -19,13 +20,15 @@ export function SettingsScreen({ onBack, onArchived, onEditBalance }: { onBack: 
       <div className="pk-layer-body pk-scroll">
         <div className="pk-col">
           <div className="pk-sec" style={{ margin: '8px 0' }}>Appearance</div>
-          <div className="pk-seg">
-            {(['system', 'light', 'dark'] as const).map((t) => (
-              <button key={t} type="button" aria-pressed={state.theme === t} onClick={() => setTheme(t)}>
-                {t[0].toUpperCase() + t.slice(1)}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            value={state.theme}
+            onChange={setTheme}
+            options={[
+              { id: 'system', label: 'System' },
+              { id: 'light', label: 'Light' },
+              { id: 'dark', label: 'Dark' },
+            ]}
+          />
 
           <div className="pk-sec" style={{ margin: '24px 0 4px' }}>Money</div>
           <button type="button" className="pk-settingrow pk-press" onClick={onEditBalance}>
