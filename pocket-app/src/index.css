@@ -6,8 +6,10 @@ body { margin: 0; font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', 
 button, input { font-family: inherit; font-size: inherit; color: inherit; }
 button { -webkit-tap-highlight-color: transparent; cursor: pointer; -webkit-user-select: none; user-select: none; }
 
-/* ---------- App tokens ---------- */
-.pk-app {
+/* ---------- App tokens ----------
+   Defined on :root (not scoped to .pk-app) so portaled content — Vaul's
+   drawer/overlay, which mounts to document.body — still resolves them. */
+:root {
   --bg: #FFFFFF; --surface: #FFFFFF; --surface2: #F3F3EF; --surface3: #EAEAE5; --ink: #141414; --ink2: #5A5A53; --ink3: #6F6F68; --line: #E4E4DF; --line2: #EEEEEA;
   --accent: #7E9484; --accent-ink: #4E6656; --accent-soft: #EEF2EE; --warn: #9A4A1C; --warn-soft: #FBF0E8; --danger: #B3261E; --danger-soft: #FCEDEB;
   --ph: #8A8A83; --primary: #141414; --on-primary: #FFFFFF; --track: #EDEDE8; --scrim: rgba(12,12,12,0.36); --focus: #2F63B8;
@@ -16,15 +18,18 @@ button { -webkit-tap-highlight-color: transparent; cursor: pointer; -webkit-user
   --sheet-shadow: 0 -12px 40px rgba(0,0,0,0.12);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   --st: max(20px, env(safe-area-inset-top)); --sb: max(20px, env(safe-area-inset-bottom)); --gx: 20px;
-  position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); display: flex; font-family: 'Manrope', system-ui, -apple-system, sans-serif; font-size: 15px; letter-spacing: -0.005em; -webkit-font-smoothing: antialiased; transition: background 300ms ease, color 300ms ease;
 }
-.pk-app.pk-dark {
+:root.pk-dark {
   --bg: #0B0C0B; --surface: #151715; --surface2: #1E211E; --surface3: #282B28; --ink: #F2F3F0; --ink2: #B4B8B1; --ink3: #979C95; --line: #2A2D2A; --line2: #1F221F;
   --accent: #8DAA96; --accent-ink: #A9C4B1; --accent-soft: #1C251F; --warn: #F2A06E; --warn-soft: #2A1D14; --danger: #FF8A80; --danger-soft: #2E1715;
   --ph: #6E736C; --primary: #F2F3F0; --on-primary: #0B0C0B; --track: #262A26; --scrim: rgba(0,0,0,0.58); --focus: #8DB2F0;
   --glass: rgba(36,39,36,0.62); --glass-strong: rgba(40,43,40,0.9); --glass-line: rgba(255,255,255,0.10); --glass-edge: rgba(255,255,255,0.06);
   --glass-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
   --sheet-shadow: 0 -12px 40px rgba(0,0,0,0.5);
+}
+
+.pk-app {
+  position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); display: flex; font-family: 'Manrope', system-ui, -apple-system, sans-serif; font-size: 15px; letter-spacing: -0.005em; -webkit-font-smoothing: antialiased; transition: background 300ms ease, color 300ms ease;
 }
 
 .pk-app *:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -53,6 +58,7 @@ button { -webkit-tap-highlight-color: transparent; cursor: pointer; -webkit-user
 .pk-side { display: none; }
 .pk-main { position: relative; flex: 1 1 auto; min-width: 0; height: 100%; overflow: hidden; }
 .pk-roots { position: absolute; inset: 0; }
+.pk-tabpane { position: absolute; inset: 0; }
 .pk-screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; padding: calc(var(--st) + 6px) var(--gx) 128px; background: var(--bg); }
 .pk-col { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; }
 .pk-layer { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 20; box-shadow: -10px 0 30px rgba(0,0,0,0.06); }

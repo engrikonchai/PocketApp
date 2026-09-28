@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { StoreProvider, useStore } from './lib/store';
 import { useIsDark, useIsWide } from './lib/hooks';
 import { Icon } from './components/Icon';
@@ -78,45 +79,67 @@ function AppShell() {
 
       <main className="pk-main">
         <div className="pk-roots">
-          {tab === 'home' && (
-            <HomeScreen
-              onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })}
-              onNewGoal={() => setSheet({ type: 'goalForm' })}
-              onSeeAllActivity={() => goTab('activity')}
-              onEditEntry={(id) => setSheet({ type: 'entryDetail', id })}
-            />
-          )}
-          {tab === 'goals' && (
-            <GoalsScreen
-              onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })}
-              onNewGoal={() => setSheet({ type: 'goalForm' })}
-              onArchived={() => setLayer({ type: 'archived' })}
-            />
-          )}
-          {tab === 'activity' && <ActivityScreen onEditEntry={(id) => setSheet({ type: 'entryDetail', id })} />}
-          {tab === 'insights' && <InsightsScreen />}
+          <AnimatePresence initial={false} mode="sync">
+            {tab === 'home' && (
+              <motion.div key="home" className="pk-tabpane" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}>
+                <HomeScreen
+                  onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })}
+                  onNewGoal={() => setSheet({ type: 'goalForm' })}
+                  onSeeAllActivity={() => goTab('activity')}
+                  onEditEntry={(id) => setSheet({ type: 'entryDetail', id })}
+                />
+              </motion.div>
+            )}
+            {tab === 'goals' && (
+              <motion.div key="goals" className="pk-tabpane" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}>
+                <GoalsScreen
+                  onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })}
+                  onNewGoal={() => setSheet({ type: 'goalForm' })}
+                  onArchived={() => setLayer({ type: 'archived' })}
+                />
+              </motion.div>
+            )}
+            {tab === 'activity' && (
+              <motion.div key="activity" className="pk-tabpane" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}>
+                <ActivityScreen onEditEntry={(id) => setSheet({ type: 'entryDetail', id })} />
+              </motion.div>
+            )}
+            {tab === 'insights' && (
+              <motion.div key="insights" className="pk-tabpane" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}>
+                <InsightsScreen />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {layer?.type === 'goalDetail' && (
-          <GoalDetailScreen
-            goalId={layer.id}
-            onBack={() => setLayer(null)}
-            onEdit={() => setSheet({ type: 'goalForm', editId: layer.id })}
-            onAddMoney={() => setSheet({ type: 'entry', entryType: 'save', goalId: layer.id })}
-            onWithdraw={() => setSheet({ type: 'entry', entryType: 'withdraw', goalId: layer.id })}
-            onDeleted={() => setLayer(null)}
-          />
-        )}
-        {layer?.type === 'settings' && (
-          <SettingsScreen
-            onBack={() => setLayer(null)}
-            onArchived={() => setLayer({ type: 'archived' })}
-            onEditBalance={() => setSheet({ type: 'balance' })}
-          />
-        )}
-        {layer?.type === 'archived' && (
-          <ArchivedGoalsScreen onBack={() => setLayer(null)} onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })} />
-        )}
+        <AnimatePresence>
+          {layer?.type === 'goalDetail' && (
+            <motion.div key={'goal-' + layer.id} initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 380, damping: 38 }}>
+              <GoalDetailScreen
+                goalId={layer.id}
+                onBack={() => setLayer(null)}
+                onEdit={() => setSheet({ type: 'goalForm', editId: layer.id })}
+                onAddMoney={() => setSheet({ type: 'entry', entryType: 'save', goalId: layer.id })}
+                onWithdraw={() => setSheet({ type: 'entry', entryType: 'withdraw', goalId: layer.id })}
+                onDeleted={() => setLayer(null)}
+              />
+            </motion.div>
+          )}
+          {layer?.type === 'settings' && (
+            <motion.div key="settings" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 380, damping: 38 }}>
+              <SettingsScreen
+                onBack={() => setLayer(null)}
+                onArchived={() => setLayer({ type: 'archived' })}
+                onEditBalance={() => setSheet({ type: 'balance' })}
+              />
+            </motion.div>
+          )}
+          {layer?.type === 'archived' && (
+            <motion.div key="archived" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 380, damping: 38 }}>
+              <ArchivedGoalsScreen onBack={() => setLayer(null)} onOpenGoal={(id) => setLayer({ type: 'goalDetail', id })} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {!wide && !layer && (
