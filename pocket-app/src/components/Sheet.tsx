@@ -31,6 +31,7 @@ export function Sheet({
       onOpenChange={(v) => setOpen(v)}
       onAnimationEnd={(v) => { if (!v) onClose(); }}
       shouldScaleBackground={false}
+      handleOnly={wide}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="pk-scrim" />
@@ -47,7 +48,12 @@ export function Sheet({
           }}
         >
           <Drawer.Title className="pk-sr">{title ?? 'Dialog'}</Drawer.Title>
-          <div className="pk-grab"><span /></div>
+          {/* On wide screens the sheet is a centered dialog, not a drawer — it
+              shouldn't be draggable at all. handleOnly (above) restricts dragging
+              to this Handle, and hiding it here removes the only way to trigger it. */}
+          <Drawer.Handle className="pk-grab" style={wide ? { visibility: 'hidden', pointerEvents: 'none', height: 6, padding: 0 } : undefined}>
+            <span />
+          </Drawer.Handle>
           <div className="pk-sheethead">
             <div>{headerLeft}</div>
             {title ? <span className="pk-sheettitle">{title}</span> : <span />}

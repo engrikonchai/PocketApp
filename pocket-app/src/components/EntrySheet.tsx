@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../lib/store';
 import { derive, activeGoals, eligibleSaveGoalId } from '../lib/calc';
 import { eur, eur2, todayIso, nowTime } from '../lib/format';
@@ -130,23 +130,33 @@ export function EntrySheet({ initialType, initialGoalId, onClose }: { initialTyp
               {TYPE_META[type].label}
               <Icon id="down" className="pk-ico-xs" style={{ color: 'var(--ink2)' }} />
             </button>
-            {typeMenuOpen && (
-              <div className="pk-menu pk-glass" role="menu" style={{ top: 48, left: 0 }}>
-                {(['save', 'withdraw', 'expense', 'income'] as EntryType[]).map((tp) => (
-                  <button
-                    key={tp}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={type === tp}
-                    disabled={(tp === 'save' || tp === 'withdraw') && active.length === 0}
-                    onClick={() => { setType(tp); setTypeMenuOpen(false); }}
-                  >
-                    <Icon id={TYPE_META[tp].icon} className="pk-ico-s" />
-                    <span>{TYPE_META[tp].label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            <AnimatePresence>
+              {typeMenuOpen && (
+                <motion.div
+                  className="pk-menu pk-glass"
+                  role="menu"
+                  style={{ top: 48, left: 0 }}
+                  initial={{ opacity: 0, scale: 0.94, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: -4 }}
+                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                >
+                  {(['save', 'withdraw', 'expense', 'income'] as EntryType[]).map((tp) => (
+                    <button
+                      key={tp}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={type === tp}
+                      disabled={(tp === 'save' || tp === 'withdraw') && active.length === 0}
+                      onClick={() => { setType(tp); setTypeMenuOpen(false); }}
+                    >
+                      <Icon id={TYPE_META[tp].icon} className="pk-ico-s" />
+                      <span>{TYPE_META[tp].label}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ) : undefined
       }
@@ -181,16 +191,26 @@ export function EntrySheet({ initialType, initialGoalId, onClose }: { initialTyp
                 </span>
                 <Icon id="down" className="pk-ico-xs" style={{ color: 'var(--ink2)' }} />
               </button>
-              {goalPickerOpen && (
-                <div className="pk-menu pk-glass" role="menu" style={{ top: 52, left: 0 }}>
-                  {active.map((g) => (
-                    <button key={g.id} type="button" onClick={() => { setGoalId(g.id); setGoalPickerOpen(false); }}>
-                      <Icon id={g.icon} className="pk-ico-s" />
-                      <span>{g.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence>
+                {goalPickerOpen && (
+                  <motion.div
+                    className="pk-menu pk-glass"
+                    role="menu"
+                    style={{ top: 52, left: 0 }}
+                    initial={{ opacity: 0, scale: 0.94, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.94, y: -4 }}
+                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  >
+                    {active.map((g) => (
+                      <button key={g.id} type="button" onClick={() => { setGoalId(g.id); setGoalPickerOpen(false); }}>
+                        <Icon id={g.icon} className="pk-ico-s" />
+                        <span>{g.name}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 

@@ -4,6 +4,7 @@ import { rowOf } from '../lib/rows';
 import { dayHeader } from '../lib/format';
 import { Icon } from '../components/Icon';
 import { ActivityRow } from '../components/ActivityRow';
+import { Segmented } from '../components/Segmented';
 import { useIsDark } from '../lib/hooks';
 
 type TypeFilter = 'all' | 'savings' | 'expense' | 'income';
@@ -39,12 +40,17 @@ export function ActivityScreen({ onEditEntry }: { onEditEntry: (id: string) => v
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <h1 className="pk-large">Activity</h1>
         </div>
-        <div className="pk-seg" style={{ marginBottom: 8 }}>
-          {(['all', 'savings', 'expense', 'income'] as TypeFilter[]).map((t) => (
-            <button key={t} type="button" aria-pressed={typeFilter === t} onClick={() => setTypeFilter(t)}>
-              {t === 'all' ? 'All' : t === 'savings' ? 'Savings' : t === 'expense' ? 'Expenses' : 'Income'}
-            </button>
-          ))}
+        <div style={{ marginBottom: 8 }}>
+          <Segmented
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={[
+              { id: 'all', label: 'All' },
+              { id: 'savings', label: 'Savings' },
+              { id: 'expense', label: 'Expenses' },
+              { id: 'income', label: 'Income' },
+            ]}
+          />
         </div>
 
         {groups.length === 0 ? (
