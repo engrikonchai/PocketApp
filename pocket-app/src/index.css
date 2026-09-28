@@ -61,7 +61,7 @@ button { -webkit-tap-highlight-color: transparent; cursor: pointer; -webkit-user
 .pk-tabpane { position: absolute; inset: 0; }
 .pk-screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; padding: calc(var(--st) + 6px) var(--gx) 128px; background: var(--bg); }
 .pk-col { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; }
-.pk-layer { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 20; box-shadow: -10px 0 30px rgba(0,0,0,0.06); }
+.pk-layer { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 20; box-shadow: -12px 0 40px rgba(0,0,0,0.16); }
 .pk-layer-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; box-sizing: border-box; padding: 4px var(--gx) 40px; }
 .pk-navbar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: calc(var(--st) + 6px) calc(var(--gx) - 4px) 6px; min-height: 44px; box-sizing: content-box; }
 .pk-navtitle { font-size: 15px; font-weight: 600; color: var(--ink); text-align: center; flex: 1; }
