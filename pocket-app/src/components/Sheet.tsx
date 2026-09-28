@@ -38,6 +38,13 @@ export function Sheet({
           className="pk-sheet"
           style={wide ? { left: '50%', right: 'auto', bottom: 'auto', top: '50%', width: 440, borderRadius: 26, transform: 'translate(-50%, -50%)' } : undefined}
           aria-describedby={undefined}
+          onScroll={(e) => {
+            // .pk-sheet is overflow:hidden purely to clip rounded corners; it should
+            // never actually scroll. Clicking a button deep inside it can trigger the
+            // browser's default focus-scroll-into-view on this container even though
+            // overflow:hidden blocks real user scrolling — reset it if that happens.
+            if (e.currentTarget.scrollTop !== 0) e.currentTarget.scrollTop = 0;
+          }}
         >
           <Drawer.Title className="pk-sr">{title ?? 'Dialog'}</Drawer.Title>
           <div className="pk-grab"><span /></div>
