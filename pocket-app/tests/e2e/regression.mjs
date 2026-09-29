@@ -6,9 +6,10 @@
 // each step rather than just "the script didn't throw" — a script that runs
 // to completion without checking anything is not the same as a passing test.
 
+import { fileURLToPath } from 'node:url';
 import { launchBrowser, filterNoise, seedAndLoad, defaultSeedState, reportAndExit } from './_helpers.mjs';
 
-const SHOTDIR = new URL('./output/regression', import.meta.url).pathname;
+const SHOTDIR = fileURLToPath(new URL('./output/regression', import.meta.url));
 const results = [];
 
 async function main() {

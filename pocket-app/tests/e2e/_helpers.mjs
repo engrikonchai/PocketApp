@@ -6,21 +6,24 @@ import { chromium } from 'playwright';
 
 export const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:4173';
 
-// This repo's own dev sandbox pre-installs Chromium at a fixed path
-// (/opt/pw-browsers/chromium) rather than Playwright's own managed cache, so
-// a project-local playwright install can't find it via auto-discovery.
-// PLAYWRIGHT_CHROMIUM_PATH is an escape hatch for any other environment.
+// Defaults to Playwright's own managed browser (whatever `chromium.launch()`
+// resolves on its own — installed via `npx playwright install chromium`, or
+// found through PLAYWRIGHT_BROWSERS_PATH if that variable happens to point
+// at a cache with a matching revision). PLAYWRIGHT_CHROMIUM_PATH is an
+// explicit override for an environment that has a Chromium binary at a fixed
+// path outside Playwright's managed cache (e.g. a different revision) — set
+// it in the environment rather than hardcoding a path here.
 export function launchBrowser() {
-  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || '/opt/pw-browsers/chromium';
-  return chromium.launch({ executablePath });
+  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+  return chromium.launch(executablePath ? { executablePath } : {});
 }
 
+// No blanket error filtering: every console/page error surfaced by these
+// scripts should be investigated and either fixed or explicitly and
+// narrowly excluded here with a comment explaining why it's unavoidable and
+// not a symptom of an app bug.
 export function filterNoise(errs) {
-  return errs.filter((e) =>
-    !e.includes('ERR_CERT_AUTHORITY_INVALID') &&
-    !e.includes('attribute d: Expected moveto') &&
-    !/\b404\b/.test(e)
-  );
+  return errs;
 }
 
 export async function seedAndLoad(page, state) {
