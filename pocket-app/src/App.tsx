@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { StoreProvider, useStore } from './lib/store';
 import { useIsDark, useIsWide } from './lib/hooks';
 import { Icon } from './components/Icon';
@@ -194,8 +194,10 @@ function AppShell() {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <AppShell />
-    </StoreProvider>
+    <MotionConfig reducedMotion="user">
+      <StoreProvider>
+        <AppShell />
+      </StoreProvider>
+    </MotionConfig>
   );
 }
